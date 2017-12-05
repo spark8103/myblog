@@ -1,0 +1,55 @@
+# Basic
+title: sparkknow blog
+subtitle: sparkknow的个人博客
+welcome_message: 欢迎来到这里
+description: 个人博客网站
+creator: sparkknow
+
+url: "http://sparkknow.com"
+
+permalink: /:year/:month/:title/
+
+# Format
+highlighter: rouge
+
+# supported colors: blue, green, purple, red, orange or slate. If you need clear, leave it empty.
+cover_color: blue
+
+# The blog button should not be removed.
+blog_button:
+    title: Blog
+    description: Visit blog
+
+# Navigation buttons in the front page.
+nav:
+    # - {title: Projects, description: My Projects, url: 'http://project.onevcat.com'}
+    # - {title: Another Button, description: A button, url: 'http://example.com'}
+
+# Pagination
+gems: [jekyll-paginate]
+paginate: 10
+paginate_path: "page/:num/"
+
+# Comment
+#comment:
+#    disqus: vno-jekyll
+    # duoshuo: 
+    
+# Social
+social:
+    weibo: spark8103
+    github: spark8103
+    twitter: spark8103
+    mail: spark8103@sparkknow.com
+#    gplus: 107108267983477358170
+
+# Google Analytics
+ga:
+    # id: your_ga_id
+    # host: your_host
+
+# Server setting
+host: 0.0.0.0
+port: 28103
+
+exclude: [Gemfile, Gemfile.lock, cmd.sh, README.md]
