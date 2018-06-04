@@ -52,4 +52,4 @@ ga:
 host: 0.0.0.0
 port: 28103
 
-exclude: [Gemfile, Gemfile.lock, cmd.sh, README.md]
+exclude: [Gemfile, Gemfile.lock, cmd.sh, README.md, other]

@@ -203,9 +203,9 @@ mv falcon-ngx_metric-master/lua/ /opt/programs/nginx_1.14.0/modules
 
 vi /opt/programs/nginx_1.14.0/conf/conf.d/ngx_metric.conf 
 ```vim
-lua_package_path "modules/?.lua;;";
+lua_package_path "/opt/programs/nginx_1.14.0/modules/?.lua;;";
 lua_shared_dict result_dict 128M;
-log_by_lua_file modules/ngx_metric.lua;
+log_by_lua_file /opt/programs/nginx_1.14.0/modules/ngx_metric.lua;
 
 server {
     listen          127.0.0.1:9091;
@@ -338,29 +338,31 @@ server {
     error_log    logs/sparkknow.com-error.log;
 
     location ^~ /.well-known/acme-challenge/ {
-        alias /opt/programs/nginx_1.12.2/challenges/;
+        default_type "text/plain";
+        alias /opt/programs/nginx_1.14.0/challenges/;
         try_files $uri =404;
     }
 
     location / {
-        rewrite ^/(.*)$ https://sparkknow.com/$1 permanent;
+        #rewrite ^/(.*)$ https://sparkknow.com/$1 permanent;
+        root html/;
     }
 
 
     error_page    403 404 500 502 503 504  /404.html;
     location = /404.html {
-        root /opt/programs/nginx_1.12.2/html/;
+        root html/;
     }
 }
 
 
 server {
     server_name  www.sparkknow.com sparkknow.com;
-    listen 443;
+    listen 443 ssl;
 
     ssl on;
-    ssl_certificate /root/nginx-ssl/chained.pem;
-    ssl_certificate_key /root/nginx-ssl/domain.key;
+    ssl_certificate /etc/letsencrypt/live/sparkknow.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/sparkknow.com/privkey.pem;
 
     ssl_session_timeout 5m;
     ssl_protocols SSLv3 TLSv1 TLSv1.1 TLSv1.2;
@@ -376,12 +378,12 @@ server {
 
 
     location / {
-        root /opt/programs/nginx_1.12.2/html/;
+        root /opt/programs/nginx_1.14.0/html/;
     }
 
     error_page    403 404 500 502 503 504  /404.html;
     location = /404.html {
-        root /opt/programs/nginx_1.12.2/html/;
+        root /opt/programs/nginx_1.14.0/html/;
     }
 }
 ```
