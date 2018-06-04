@@ -327,7 +327,7 @@ server {
 vi sparkknow.com.conf
 ```vim
 server {
-    server_name  www.sparkknow.com sparkknow.com;
+    server_name sparkknow.com www.sparkknow.com reg.sparkknow.com;
     listen 80;
 
     proxy_set_header Host    $host;
@@ -344,8 +344,8 @@ server {
     }
 
     location / {
-        #rewrite ^/(.*)$ https://sparkknow.com/$1 permanent;
-        root html/;
+        rewrite ^/(.*)$ https://sparkknow.com/$1 permanent;
+        #root html/;
     }
 
 
@@ -357,16 +357,23 @@ server {
 
 
 server {
-    server_name  www.sparkknow.com sparkknow.com;
-    listen 443 ssl;
+    server_name sparkknow.com www.sparkknow.com;
+    listen 443 ssl http2;
+   
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    add_header X-Frame-Options DENY;
+    add_header X-Content-Type-Options nosniff;
+    add_header X-Xss-Protection 1;
 
     ssl on;
     ssl_certificate /etc/letsencrypt/live/sparkknow.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/sparkknow.com/privkey.pem;
 
-    ssl_session_timeout 5m;
-    ssl_protocols SSLv3 TLSv1 TLSv1.1 TLSv1.2;
-    ssl_ciphers ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP;
+    ssl_session_timeout 30m;
+    ssl_session_cache   shared:SSL:30m;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+    #ssl_ciphers TLS13-AES-256-GCM-SHA384:TLS13-CHACHA20-POLY1305-SHA256:TLS13-AES-128-GCM-SHA256:TLS13-AES-128-CCM-8-SHA256:TLS13-AES-128-CCM-SHA256:EECDH+CHACHA20:EECDH+CHACHA20-draft:EECDH+ECDSA+AES128:EECDH+aRSA+AES128:RSA+AES128:EECDH+ECDSA+AES256:EECDH+aRSA+AES256:RSA+AES256:EECDH+ECDSA+3DES:EECDH+aRSA+3DES:RSA+3DES:!MD5;
+    ssl_ciphers "EECDH+ECDSA+AESGCM EECDH+aRSA+AESGCM EECDH+ECDSA+SHA384 EECDH+ECDSA+SHA256 EECDH+aRSA+SHA384 EECDH+aRSA+SHA256 EECDH+aRSA+RC4 EECDH EDH+aRSA !aNULL !eNULL !LOW !3DES !MD5 !EXP !PSK !SRP !DSS !RC4";
     ssl_prefer_server_ciphers on;
 
     proxy_set_header Host    $host;
