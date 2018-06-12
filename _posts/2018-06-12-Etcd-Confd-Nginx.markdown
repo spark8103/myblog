@@ -5,9 +5,7 @@ date: 2018-06-12 13:35:02.000000000 +09:00
 tags: 技术
 ---
 
-# Etcd+Confd+Nginx构建服务发现
-
-## 背景
+# 背景
 微服务的兴起，需要我们可以方便的自动生成nginx配置，可以通过API上线下线后端服务器，因此需要服务的注册和配置更新功能。
 
 通过Etcd存储nginx的域名及upstream的信息，通过Confd进行配置的自动更新。
@@ -16,7 +14,7 @@ etcd api(update k/v) ==> etcd ==> confd ==> nginx
 
 以下操作在Ubuntu下面执行，其它系统类似。
 
-## nginx安装
+# nginx安装
 ```shell
 ~# apt install nginx
 ~# whereis nginx
@@ -28,14 +26,14 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 
 我们将用模板将配置生成在/etc/nginx/conf.d/路径下面，然后检查nginx配置，进行nginx配置生效。
 
-## Confd安装
+# Confd安装
 ```shell
 ~# wget https://github.com/kelseyhightower/confd/releases/download/v0.16.0/confd-0.16.0-linux-amd64
 ~# mv confd-0.16.0-linux-amd64 /usr/sbin/confd
 ~# chmod +x /usr/sbin/confd
 ```
 
-## Etcd安装
+# Etcd安装
 ```shell
 ~# apt install etcd-server etcd-client
 ```
@@ -52,7 +50,7 @@ ETCD_ADVERTISE_CLIENT_URLS="http://0.0.0.0:2379"
 ~# service etcd restart
 ```
 
-## Confd配置
+# Confd配置
 创建配置目录
 ```shell
 ~# mkdir -p /etc/confd/{conf.d,templates}
@@ -99,7 +97,7 @@ server {
 }
 ```
 
-## 注册服务
+# 注册服务
 通过etcdctl命令，插入数据，也可以通过http api接口。
 ```shell
 ~# etcdctl set /app1/subdomain app1
