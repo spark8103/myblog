@@ -249,71 +249,7 @@ server {
     error_log    logs/error.log;
 
     location / {
-        rewrite ^/(.*)$ https://sparkknow.com/$1 permanent;
-    }
-
-
-    error_page    403 404 500 502 503 504  /404.html;
-    location = /404.html {
-        root html/;
-    }
-}
-```
-
-vi reg.sparkknow.com.conf 
-```vim
-server {
-    server_name  reg.sparkknow.com;
-    listen 80;
-
-    proxy_set_header Host    $host;
-    proxy_set_header X-Real-IP  $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-
-    access_log   logs/reg.sparkknow.com-access.log main;
-    error_log    logs/reg.sparkknow.com-error.log;
-
-    location ^~ /.well-known/acme-challenge/ {
-        alias /opt/programs/nginx_1.12.2/challenges/;
-        try_files $uri =404;
-    }
-
-    location / {
-        rewrite ^/(.*)$ https://$host$1 permanent;
-    }
-
-
-    error_page    403 404 500 502 503 504  /404.html;
-    location = /404.html {
-        root html/;
-    }
-}
-
-server {
-    server_name  reg.sparkknow.com;
-    listen 443;
-
-    ssl on;
-    ssl_certificate /root/nginx-ssl/chained.pem;
-    ssl_certificate_key /root/nginx-ssl/domain.key;
-
-    ssl_session_timeout 5m;
-    ssl_protocols SSLv3 TLSv1 TLSv1.1 TLSv1.2;
-    ssl_ciphers ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP;
-    ssl_prefer_server_ciphers on;
-
-    proxy_set_header Host    $host;
-    proxy_set_header X-Real-IP  $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-
-    access_log   logs/reg.sparkknow.com-access.log main;
-    error_log    logs/reg.sparkknow.com-error.log;
-
-    add_header Strict-Transport-Security "max-age=31536000";
-
-    location / {
-        proxy_pass http://localhost:8011;
+        rewrite ^/(.*)$ https://www.sparkknow.com/$1 permanent;
     }
 
 
@@ -344,7 +280,7 @@ server {
     }
 
     location / {
-        rewrite ^/(.*)$ https://sparkknow.com/$1 permanent;
+        rewrite ^/(.*)$ https://www.sparkknow.com/$1 permanent;
         #root html/;
     }
 
@@ -355,11 +291,10 @@ server {
     }
 }
 
-
 server {
-    server_name sparkknow.com www.sparkknow.com;
+    server_name sparkknow.com;
     listen 443 ssl http2;
-   
+
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
     add_header X-Frame-Options DENY;
     add_header X-Content-Type-Options nosniff;
@@ -382,6 +317,44 @@ server {
 
     access_log   logs/sparkknow.com-access.log main;
     error_log    logs/sparkknow.com-error.log;
+
+
+    location / {
+        rewrite ^/(.*)$ https://www.sparkknow.com/$1 permanent;
+    }
+
+    error_page    403 404 500 502 503 504  /404.html;
+    location = /404.html {
+        root /opt/programs/nginx_1.14.0/html/;
+    }
+}
+
+server {
+    server_name www.sparkknow.com;
+    listen 443 ssl http2;
+   
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    add_header X-Frame-Options DENY;
+    add_header X-Content-Type-Options nosniff;
+    add_header X-Xss-Protection 1;
+
+    ssl on;
+    ssl_certificate /etc/letsencrypt/live/sparkknow.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/sparkknow.com/privkey.pem;
+
+    ssl_session_timeout 30m;
+    ssl_session_cache   shared:SSL:30m;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+    #ssl_ciphers TLS13-AES-256-GCM-SHA384:TLS13-CHACHA20-POLY1305-SHA256:TLS13-AES-128-GCM-SHA256:TLS13-AES-128-CCM-8-SHA256:TLS13-AES-128-CCM-SHA256:EECDH+CHACHA20:EECDH+CHACHA20-draft:EECDH+ECDSA+AES128:EECDH+aRSA+AES128:RSA+AES128:EECDH+ECDSA+AES256:EECDH+aRSA+AES256:RSA+AES256:EECDH+ECDSA+3DES:EECDH+aRSA+3DES:RSA+3DES:!MD5;
+    ssl_ciphers "EECDH+ECDSA+AESGCM EECDH+aRSA+AESGCM EECDH+ECDSA+SHA384 EECDH+ECDSA+SHA256 EECDH+aRSA+SHA384 EECDH+aRSA+SHA256 EECDH+aRSA+RC4 EECDH EDH+aRSA !aNULL !eNULL !LOW !3DES !MD5 !EXP !PSK !SRP !DSS !RC4";
+    ssl_prefer_server_ciphers on;
+
+    proxy_set_header Host    $host;
+    proxy_set_header X-Real-IP  $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+    access_log   logs/www.sparkknow.com-access.log main;
+    error_log    logs/www.sparkknow.com-error.log;
 
 
     location / {

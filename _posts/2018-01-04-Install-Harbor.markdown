@@ -72,8 +72,8 @@ chmod +x /usr/local/bin/docker-compose
 ## 下载解压Harbor
 下载最新的Release版本，网速好可下载在线安装版本。
 ```shell
-wget https://github.com/vmware/harbor/releases/download/v1.2.2/harbor-online-installer-v1.2.2.tgz
-tar zxvf harbor-online-installer-v1.2.2.tgz
+wget https://storage.googleapis.com/harbor-releases/release-1.8.0/harbor-online-installer-v1.8.1.tgz
+tar zxvf harbor-online-installer-v1.8.1.tgz
 cd harbor
 ```
 
@@ -81,12 +81,28 @@ cd harbor
 vi harbor.cfg #可修改你的主机名，数据库账号密码，管理员账号密码等信息。
 ```shell
 hostname = reg.sparkknow.com
-ui_url_protocol = http
-db_password = xxxxxxxx
-clair_db_password = xxxxxxxx
-harbor_admin_password = xxxxxxxx
-self_registration = off
-project_creation_restriction = adminonly
+http:
+  port: 8011
+external_url: https://reg.sparkknow.com
+harbor_admin_password: xxxxxxxxxxx
+database:
+  password: xxxxxxxxxxxxx
+data_volume: /data
+clair: 
+  updaters_interval: 12
+  http_proxy:
+  https_proxy:
+  no_proxy: 127.0.0.1,localhost,core,registry
+jobservice:
+  max_job_workers: 10
+chart:
+  absolute_url: disabled
+log:
+  level: info
+  rotate_count: 50
+  rotate_size: 200M
+  location: /var/log/harbor
+_version: 1.8.0
 ```
 
 vi docker-compose.yml #可修改端口等信息，我这里使用nginx做了转发
@@ -94,21 +110,6 @@ vi docker-compose.yml #可修改端口等信息，我这里使用nginx做了转�
   proxy:
     ports:
       - 8011:80
-      - 1443:443
-      - 4443:4443
-```
-
-修改模板配置，在common/templates/nginx/nginx.http.conf中,找到location /, location /v2/ and location /service/这3个配置块， 将这三个配置块中的proxy_set_header X-Forwarded-Proto $scheme;配置注释掉。
-
-修改common/templates/registry/config.yml，修改auth.token.realm的地址：
-```shell
-auth:
-  token:
-    issuer: harbor-token-issuer
-    realm: https://reg.sparkknow.com/service/token
-    # realm: $ui_url/service/token
-    rootcertbundle: /etc/registry/root.crt
-    service: harbor-registry
 ```
 
 执行安装
@@ -135,7 +136,7 @@ server {
     ssl_ciphers ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP;
     ssl_prefer_server_ciphers on;
 
-    proxy_set_header Host    $host;
+    #proxy_set_header Host    $host;
     proxy_set_header X-Real-IP  $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 
@@ -182,16 +183,16 @@ https://reg.sparkknow.com/ 管理员登陆后可进行项目管理，用户管�
 
 ### push镜像
 ```shell
-docker pull alpine:3.7
-docker tag alpine:3.7 reg.sparkknow.com/k8s/alpine:3.7
+docker pull alpine:3.10.0
+docker tag alpine:3.10.0 reg.sparkknow.com/k8s/alpine:3.10.0
 docker login reg.sparkknow.com
-docker push reg.sparkknow.com/k8s/alpine:3.7
+docker push reg.sparkknow.com/k8s/alpine:3.10.0
 ```
 
 ### pull镜像
 ```shell
 docker login reg.sparkknow.com
-docker pull reg.sparkknow.com/k8s/alpine:3.7
+docker pull reg.sparkknow.com/k8s/alpine:3.10.0
 ```
 
 ### 退出登陆
